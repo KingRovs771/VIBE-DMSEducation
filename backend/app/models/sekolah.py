@@ -96,6 +96,18 @@ class Sekolah(Base):
         server_default="true",
         comment="Status aktif sekolah",
     )
+    public_key_pem: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        comment="Public Key RSA Master Key sekolah (PEM)",
+    )
+    mk_version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        server_default="0",
+        comment="Versi Master Key yang aktif. 0 = belum di-setup",
+    )
     # ── Timestamps ────────────────────────────────────────────────────────────
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

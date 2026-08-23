@@ -1,65 +1,79 @@
 /**
- * Zustand auth store
+ * store/authStore.ts — Zustand store untuk state otentikasi siswa
  */
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import apiClient from "@/lib/api-client";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-interface User {
+export interface SiswaProfile {
   id: number;
-  email: string;
-  username: string;
-  full_name: string;
-  role: string;
-  avatar_url?: string;
-  is_active: boolean;
+  nis: string;
+  nama_lengkap: string;
+  kelas?: string;
+  angkatan?: number;
+  email?: string;
+  telepon?: string;
+  sekolah_id: number;
+  foto_path?: string;
 }
 
 interface AuthState {
-  user: User | null;
+  isAuthenticated: boolean;
   accessToken: string | null;
   refreshToken: string | null;
-  isAuthenticated: boolean;
-
-  login: (email: string, password: string) => Promise<void>;
+  siswa: SiswaProfile | null;
+  login: (tokens: { access_token: string; refresh_token: string }, siswa: SiswaProfile) => void;
   logout: () => void;
-  fetchMe: () => Promise<void>;
+  updateSiswa: (data: Partial<SiswaProfile>) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
-      user: null,
+    (set) => ({
+      isAuthenticated: false,
       accessToken: null,
       refreshToken: null,
-      isAuthenticated: false,
+      siswa: null,
 
-      login: async (email, password) => {
-        const res = await apiClient.post("/auth/login", { email, password });
-        const { access_token, refresh_token } = res.data;
-        localStorage.setItem("access_token", access_token);
-        localStorage.setItem("refresh_token", refresh_token);
-        set({ accessToken: access_token, refreshToken: refresh_token, isAuthenticated: true });
-        await get().fetchMe();
+      login: (tokens, siswa) => {
+        // Simpan token di localStorage untuk diambil axios interceptor
+        if (typeof window !== "undefined") {
+          localStorage.setItem("access_token", tokens.access_token);
+          localStorage.setItem("refresh_token", tokens.refresh_token);
+        }
+        set({
+          isAuthenticated: true,
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          siswa,
+        });
       },
 
       logout: () => {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+        }
+        set({
+          isAuthenticated: false,
+          accessToken: null,
+          refreshToken: null,
+          siswa: null,
+        });
       },
 
-      fetchMe: async () => {
-        const res = await apiClient.get("/auth/me");
-        set({ user: res.data });
-      },
+      updateSiswa: (data) =>
+        set((state) => ({
+          siswa: state.siswa ? { ...state.siswa, ...data } : null,
+        })),
     }),
     {
-      name: "dms-auth",
+      name: "dms-auth-storage",
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
+        isAuthenticated: state.isAuthenticated,
+        siswa: state.siswa,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
-        isAuthenticated: state.isAuthenticated,
       }),
     }
   )

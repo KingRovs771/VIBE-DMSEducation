@@ -34,14 +34,17 @@ async def init_minio_buckets() -> None:
     client = get_minio_client()
     buckets = [settings.MINIO_BUCKET_DOCUMENTS, settings.MINIO_BUCKET_AVATARS]
 
-    for bucket in buckets:
-        loop = asyncio.get_event_loop()
-        exists = await loop.run_in_executor(None, client.bucket_exists, bucket)
-        if not exists:
-            await loop.run_in_executor(None, client.make_bucket, bucket)
-            logger.info("Created MinIO bucket", bucket=bucket)
-        else:
-            logger.debug("MinIO bucket already exists", bucket=bucket)
+    try:
+        for bucket in buckets:
+            loop = asyncio.get_event_loop()
+            exists = await loop.run_in_executor(None, client.bucket_exists, bucket)
+            if not exists:
+                await loop.run_in_executor(None, client.make_bucket, bucket)
+                logger.info("Created MinIO bucket", bucket=bucket)
+            else:
+                logger.debug("MinIO bucket already exists", bucket=bucket)
+    except Exception as exc:
+        logger.warning("⚠️  MinIO initialization warning (will retry on demand)", error=str(exc))
 
 
 async def upload_file(

@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import (
     Boolean, DateTime, Enum, ForeignKey, Index,
-    Integer, String, Text,
+    Integer, String, Text, JSON,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -77,7 +77,7 @@ class Notifikasi(Base):
 
     # ── Konten ────────────────────────────────────────────────────────────────
     tipe: Mapped[TipeNotifikasi] = mapped_column(
-        Enum(TipeNotifikasi, name="tipe_notifikasi_enum"),
+        Enum(TipeNotifikasi, name="tipe_notifikasi_enum", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
         default=TipeNotifikasi.SISTEM,
         comment="Kategori notifikasi",
@@ -93,7 +93,7 @@ class Notifikasi(Base):
         comment="Isi pesan notifikasi",
     )
     payload: Mapped[dict | None] = mapped_column(
-        JSONB,
+        JSON().with_variant(JSONB, "postgresql"),
         nullable=True,
         comment=(
             "Data tambahan dalam JSONB. Contoh: "

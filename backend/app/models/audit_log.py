@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import (
     DateTime, Enum, ForeignKey, Index, Integer,
-    String, Text,
+    String, Text, JSON,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -123,7 +123,7 @@ class AuditLog(Base):
         comment="FK ke tabel siswa (jika user_type = siswa)",
     )
     user_type: Mapped[UserType] = mapped_column(
-        Enum(UserType, name="user_type_enum"),
+        Enum(UserType, name="user_type_enum", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
         comment="Tipe aktor: admin | siswa | system | guest",
     )
@@ -180,7 +180,7 @@ class AuditLog(Base):
 
     # ── Hasil ─────────────────────────────────────────────────────────────────
     status: Mapped[AuditStatus] = mapped_column(
-        Enum(AuditStatus, name="audit_status_enum"),
+        Enum(AuditStatus, name="audit_status_enum", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
         default=AuditStatus.SUCCESS,
         comment="Hasil aksi: success | failed | error | blocked",
@@ -191,7 +191,7 @@ class AuditLog(Base):
         comment="Pesan error jika status = failed/error",
     )
     detail: Mapped[dict | None] = mapped_column(
-        JSONB,
+        JSON().with_variant(JSONB, "postgresql"),
         nullable=True,
         comment=(
             "Detail tambahan dalam JSONB. Contoh: "

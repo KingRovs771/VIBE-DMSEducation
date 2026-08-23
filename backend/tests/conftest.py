@@ -1,3 +1,6 @@
+import os
+os.environ["ENABLE_ANOMALY_DETECTION"] = "false"
+
 """
 Pytest configuration & fixtures
 """

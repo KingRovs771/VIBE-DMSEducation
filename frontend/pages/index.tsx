@@ -1,168 +1,317 @@
+/**
+ * pages/index.tsx - Halaman Utama DokumenSekolah
+ */
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
-  FileText, Shield, Search, Upload, Users, BarChart3,
-  ArrowRight, CheckCircle,
-} from "lucide-react";
+  ShieldCheckIcon,
+  ArrowUpTrayIcon,
+  UsersIcon,
+  ChartBarIcon,
+  ArrowRightIcon,
+  CheckCircleIcon,
+  QrCodeIcon,
+  LockClosedIcon,
+} from "@heroicons/react/24/solid";
+import { DocumentTextIcon, DocumentArrowDownIcon } from "@heroicons/react/24/outline";
 
-const features = [
+const fitur = [
   {
-    icon: Upload,
-    title: "Upload & Kelola Dokumen",
-    desc: "Upload PDF, Word, Excel dengan mudah. Dokumen tersimpan aman di MinIO.",
-    color: "from-blue-500 to-cyan-500",
+    icon: ShieldCheckIcon,
+    title: "Enkripsi Berlapis",
+    desc: "Setiap berkas diamankan dengan kunci unik berbasis NeuralKeyGen + AES-256-GCM. Tidak ada satu pun kunci tersimpan di database.",
+    bg: "bg-[#EDF7F3]",
+    border: "border-[#C0E4D4]",
+    iconBg: "bg-[#208C68]",
   },
   {
-    icon: Shield,
-    title: "NeuralKeyGen Security",
-    desc: "Setiap dokumen memiliki kunci unik yang dihasilkan neural network.",
-    color: "from-violet-500 to-purple-500",
+    icon: ArrowUpTrayIcon,
+    title: "Upload & Kelola",
+    desc: "Admin sekolah dapat mengunggah ijazah, rapor, transkrip, dan SKNR langsung dari dashboard - per siswa maupun massal via Excel.",
+    bg: "bg-[#EEF3FF]",
+    border: "border-[#C5D3F5]",
+    iconBg: "bg-[#4361EE]",
   },
   {
-    icon: Search,
-    title: "Pencarian Cerdas",
-    desc: "Full-text search dengan OCR. Cari isi dokumen PDF & gambar.",
-    color: "from-orange-500 to-amber-500",
+    icon: DocumentArrowDownIcon,
+    title: "Unduh dengan Watermark",
+    desc: "Setiap unduhan otomatis menyematkan nama, NIS, dan tanggal pengambilan sebagai watermark di PDF - aman dan bisa dilacak.",
+    bg: "bg-[#FFF8EC]",
+    border: "border-[#F5DAAB]",
+    iconBg: "bg-[#D97706]",
   },
   {
-    icon: Users,
-    title: "Manajemen Peran",
-    desc: "Admin, Guru, Staf, Siswa — setiap peran memiliki akses yang tepat.",
-    color: "from-emerald-500 to-green-500",
+    icon: QrCodeIcon,
+    title: "Verifikasi QR Code",
+    desc: "Pihak ketiga seperti HRD atau instansi bisa memindai QR pada dokumen untuk memverifikasi keaslian tanpa perlu login.",
+    bg: "bg-[#F3EEFF]",
+    border: "border-[#D4BBFA]",
+    iconBg: "bg-[#7C3AED]",
   },
   {
-    icon: BarChart3,
-    title: "Dashboard Analitik",
-    desc: "Pantau statistik dokumen, aktivitas pengguna, dan audit log.",
-    color: "from-pink-500 to-rose-500",
+    icon: UsersIcon,
+    title: "Manajemen Siswa",
+    desc: "Data siswa tersinkron dengan SINDAS. Admin dapat menambah, mengubah, dan mengelola profil siswa sesuai kebutuhan sekolah.",
+    bg: "bg-[#FFF0F0]",
+    border: "border-[#F5C5C5]",
+    iconBg: "bg-[#DC2626]",
   },
   {
-    icon: CheckCircle,
-    title: "Alur Persetujuan",
-    desc: "Dokumen melalui alur review dan persetujuan sebelum dipublikasikan.",
-    color: "from-teal-500 to-cyan-500",
+    icon: ChartBarIcon,
+    title: "Audit Trail Lengkap",
+    desc: "Setiap aktivitas tercatat otomatis - siapa yang mengunduh, kapan, dari IP mana. Transparansi penuh tanpa celah.",
+    bg: "bg-[#EDFAF5]",
+    border: "border-[#B5E8D5]",
+    iconBg: "bg-[#059669]",
   },
+];
+
+const langkah = [
+  { no: "01", label: "Admin unggah dokumen ke portal", sub: "PDF dienkripsi otomatis sebelum tersimpan di server" },
+  { no: "02", label: "Siswa login & akses dokumen", sub: "Masuk pakai NIS - tidak perlu datang ke sekolah" },
+  { no: "03", label: "Unduh dengan watermark resmi", sub: "Berkas siap diserahkan ke perusahaan atau instansi" },
+  { no: "04", label: "Pihak ketiga verifikasi via QR", sub: "Scan QR - validasi keaslian dokumen dalam hitungan detik" },
 ];
 
 const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>DMS Sekolah — Sistem Manajemen Dokumen Pendidikan</title>
+        <title>DokumenSekolah - Arsip Digital Akademik yang Aman</title>
         <meta
           name="description"
-          content="Platform digital untuk pengelolaan dokumen sekolah yang aman, terorganisir, dan mudah diakses oleh seluruh civitas sekolah."
+          content="Platform arsip digital untuk sekolah: simpan, kelola, dan akses ijazah, rapor, transkrip nilai secara terenkripsi. Alumni bisa unduh kapan saja tanpa harus ke sekolah."
         />
-        <link rel="icon" href="/favicon.ico" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
       </Head>
 
-      <div className="min-h-screen bg-slate-950 text-white font-sans">
-        {/* ── Navbar ── */}
-        <nav className="fixed top-0 z-50 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600">
-                <FileText className="h-4 w-4" />
+      <div className="min-h-screen bg-white text-[#1F2421] font-body antialiased">
+
+        {/* Navbar */}
+        <nav className="fixed top-0 z-50 w-full border-b border-[#E8EEEB] bg-white/90 backdrop-blur-md">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+            <Link href="/" className="flex items-center gap-2.5">
+              <Image src="/Logo DS.png" alt="DokumenSekolah" width={36} height={36} className="rounded-lg" priority />
+              <div className="flex flex-col leading-none">
+                <span className="text-[13px] font-extrabold text-[#0D3B2A] tracking-tight">DokumenSekolah</span>
+                <span className="text-[9px] text-[#208C68] font-bold uppercase tracking-widest">Arsip Digital</span>
               </div>
-              <span className="text-lg font-bold">DMS Sekolah</span>
+            </Link>
+            <div className="hidden md:flex items-center gap-6 text-xs font-semibold text-[#4A5350]">
+              <a href="#fitur" className="hover:text-[#14503C] transition-colors">Fitur</a>
+              <a href="#cara-kerja" className="hover:text-[#14503C] transition-colors">Cara Kerja</a>
+              <a href="#keamanan" className="hover:text-[#14503C] transition-colors">Keamanan</a>
             </div>
-            <div className="flex items-center gap-4">
-              <Link href="/login" className="text-sm text-slate-400 hover:text-white transition-colors">
-                Masuk
+            <div className="flex items-center gap-2">
+              <Link href="/login" className="hidden sm:block text-xs font-semibold text-[#4A5350] hover:text-[#14503C] px-3 py-2 rounded-lg hover:bg-[#F0FAF6] transition-all">
+                Portal Siswa
               </Link>
-              <Link
-                href="/register"
-                className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium hover:bg-primary-700 transition-colors"
-              >
-                Mulai Sekarang
+              <Link href="/admin/login" className="text-xs font-bold text-white bg-[#14503C] hover:bg-[#0F3D29] px-4 py-2 rounded-xl transition-all shadow-sm">
+                Masuk Admin
               </Link>
             </div>
           </div>
         </nav>
 
-        {/* ── Hero ── */}
-        <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20">
-          {/* Background gradient orbs */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary-600/30 blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-violet-600/20 blur-3xl" />
+        {/* Hero */}
+        <section className="relative pt-28 pb-20 px-6 overflow-hidden">
+          {/* Latar belakang disederhanakan tanpa blur-[80px] berat untuk performa scroll */}
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[#F5F8F7] to-[#EEF3FF]/30" />
+          <div className="relative mx-auto max-w-5xl">
+            <div className="flex flex-col lg:flex-row items-center gap-12">
+              <div className="flex-1 text-center lg:text-left">
+                <motion.div initial={{ opacity: 0.9, y: 0 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+                  className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full bg-[#EDF7F3] border border-[#C0E4D4] text-[#0F4C39] text-xs font-bold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#3DB891] animate-pulse" />
+                  Sistem aktif - tersedia untuk sekolah di Indonesia
+                </motion.div>
+                <motion.h1 initial={{ opacity: 0.9, y: 0 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.05 }}
+                  className="text-4xl md:text-5xl font-extrabold tracking-tight text-[#0D0F0E] leading-[1.12] mb-5">
+                  Arsip Akademik Siswa
+                  <span className="block mt-1 bg-gradient-to-r from-[#14503C] to-[#208C68] bg-clip-text text-transparent">
+                    Aman, Digital, Mudah Diakses
+                  </span>
+                </motion.h1>
+                <motion.p initial={{ opacity: 0.9, y: 0 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
+                  className="text-[#4A5350] text-base font-medium leading-relaxed mb-7 max-w-lg">
+                  Alumni tidak perlu lagi datang ke sekolah untuk mengambil ijazah atau transkrip.
+                  Semua dokumen tersimpan terenkripsi dan bisa diunduh kapan saja, dari mana saja.
+                </motion.p>
+                <motion.div initial={{ opacity: 1 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+                  className="flex flex-wrap gap-2 mb-8 justify-center lg:justify-start">
+                  {["Enkripsi AES-256-GCM", "Watermark Otomatis", "Verifikasi QR Code", "Terintegrasi SINDAS"].map((t) => (
+                    <span key={t} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F5F8F7] border border-[#D4DDD9] text-xs font-semibold text-[#4A5350]">
+                      <CheckCircleIcon className="h-3.5 w-3.5 text-[#208C68]" />
+                      {t}
+                    </span>
+                  ))}
+                </motion.div>
+                <motion.div initial={{ opacity: 1, y: 0 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+                  className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
+                  <Link href="/admin/login"
+                    className="flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#14503C] hover:bg-[#0F3D29] text-white font-bold text-sm shadow-lg shadow-[#14503C]/20 transition-all hover:-translate-y-[1px]">
+                    Masuk sebagai Admin <ArrowRightIcon className="h-4 w-4" />
+                  </Link>
+                  <Link href="/login"
+                    className="flex items-center gap-2 px-7 py-3.5 rounded-xl border border-[#D4DDD9] bg-white hover:border-[#208C68] hover:bg-[#F0FAF6] text-[#1F2421] font-bold text-sm transition-all hover:-translate-y-[1px] shadow-sm">
+                    <DocumentTextIcon className="h-4 w-4 text-[#208C68]" />
+                    Ambil Dokumen Saya
+                  </Link>
+                </motion.div>
+              </div>
+              <motion.div initial={{ opacity: 1, scale: 1 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.5 }}
+                className="flex-shrink-0">
+                <div className="relative w-56 h-56 flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-[#EDF7F3] to-[#D4EFEA] border-2 border-[#B8E0D2] shadow-2xl shadow-[#208C68]/15" />
+                  <Image src="/Logo DS.png" alt="DokumenSekolah" width={130} height={130} className="relative z-10" />
+                </div>
+                <div className="mt-4 text-center">
+                  <span className="px-4 py-1.5 rounded-full bg-[#0D3B2A] text-white text-[10px] font-bold tracking-widest uppercase">DokumenSekolah v1.0</span>
+                </div>
+              </motion.div>
+            </div>
           </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="relative text-center"
-          >
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-500/30 bg-primary-500/10 px-4 py-2 text-sm text-primary-300">
-              <span className="h-2 w-2 rounded-full bg-primary-400 animate-pulse" />
-              Platform DMS Modern untuk Sekolah Indonesia
-            </div>
-
-            <h1 className="mb-6 text-5xl font-bold leading-tight md:text-7xl">
-              Dokumen Sekolah{" "}
-              <span className="bg-gradient-to-r from-primary-400 to-violet-400 bg-clip-text text-transparent">
-                Lebih Teratur
-              </span>
-            </h1>
-
-            <p className="mx-auto mb-10 max-w-2xl text-lg text-slate-400">
-              Kelola semua dokumen sekolah — SK, surat, laporan, dan lebih banyak lagi —
-              dalam satu platform yang aman, cerdas, dan mudah digunakan.
-            </p>
-
-            <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-2 rounded-xl bg-primary-600 px-8 py-4 font-semibold hover:bg-primary-700 transition-all hover:scale-105"
-              >
-                Buka Dashboard
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/login"
-                className="flex items-center gap-2 rounded-xl border border-slate-700 px-8 py-4 font-semibold text-slate-300 hover:border-slate-600 hover:text-white transition-all"
-              >
-                Login
-              </Link>
-            </div>
-          </motion.div>
         </section>
 
-        {/* ── Features ── */}
-        <section className="mx-auto max-w-7xl px-6 py-24">
-          <div className="mb-16 text-center">
-            <h2 className="mb-4 text-4xl font-bold">Fitur Unggulan</h2>
-            <p className="text-slate-400">Semua yang dibutuhkan untuk manajemen dokumen modern</p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((f, i) => (
-              <motion.div
-                key={f.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-6 hover:border-slate-700 transition-all hover:-translate-y-1"
-              >
-                <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${f.color}`}>
-                  <f.icon className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="mb-2 text-lg font-semibold">{f.title}</h3>
-                <p className="text-sm text-slate-400">{f.desc}</p>
-              </motion.div>
+        {/* Stats strip */}
+        <section className="bg-[#0D3B2A] py-10 px-6">
+          <div className="mx-auto max-w-5xl grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {[
+              { angka: "100%", label: "Dokumen Terenkripsi" },
+              { angka: "< 5 mnt", label: "Waktu Dapatkan Dokumen" },
+              { angka: "0", label: "Kunci Tersimpan di DB" },
+              { angka: "7 Thn", label: "Retensi Arsip" },
+            ].map((s) => (
+              <div key={s.label}>
+                <div className="text-2xl font-extrabold text-white mb-1">{s.angka}</div>
+                <div className="text-xs text-[#8FD3B8] font-semibold">{s.label}</div>
+              </div>
             ))}
           </div>
         </section>
 
-        {/* ── Footer ── */}
-        <footer className="border-t border-slate-800 py-8 text-center text-sm text-slate-500">
-          <p>© 2024 DMS Sekolah. Dibangun dengan FastAPI + Next.js + PyTorch</p>
+        {/* Fitur */}
+        <section id="fitur" className="py-24 px-6 bg-[#F9FBFA]">
+          <div className="mx-auto max-w-6xl">
+            <div className="text-center mb-14">
+              <h2 className="text-3xl font-extrabold text-[#0D0F0E] mb-3">Apa yang bisa dilakukan?</h2>
+              <p className="text-[#4A5350] text-base font-medium max-w-xl mx-auto">
+                Satu platform untuk mengelola semua dokumen akademik sekolah - dari upload hingga verifikasi.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {fitur.map((f, i) => (
+                <motion.div key={f.title}
+                  initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }}
+                  className={"rounded-2xl border p-6 hover:shadow-md transition-all hover:-translate-y-[2px] " + f.bg + " " + f.border}>
+                  <div className={"inline-flex h-10 w-10 items-center justify-center rounded-xl mb-4 " + f.iconBg}>
+                    <f.icon className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="text-sm font-bold text-[#0D0F0E] mb-2">{f.title}</h3>
+                  <p className="text-xs text-[#4A5350] leading-relaxed font-medium">{f.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Cara Kerja */}
+        <section id="cara-kerja" className="py-24 px-6 bg-white">
+          <div className="mx-auto max-w-4xl">
+            <div className="text-center mb-14">
+              <h2 className="text-3xl font-extrabold text-[#0D0F0E] mb-3">Cara kerjanya sederhana</h2>
+              <p className="text-[#4A5350] font-medium">Empat langkah - dari upload hingga verifikasi dokumen.</p>
+            </div>
+            <div className="space-y-5">
+              {langkah.map((l, i) => (
+                <motion.div key={l.no}
+                  initial={{ opacity: 0, x: -12 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                  className="flex items-center gap-5 p-5 rounded-2xl bg-[#F9FBFA] border border-[#E8EEEB] hover:border-[#C0E4D4] hover:bg-[#F0FAF6] transition-all">
+                  <div className="flex-shrink-0 h-12 w-12 rounded-2xl bg-[#14503C] text-white flex items-center justify-center font-extrabold text-sm shadow-md">
+                    {l.no}
+                  </div>
+                  <div>
+                    <div className="font-bold text-[#0D0F0E] text-sm mb-0.5">{l.label}</div>
+                    <div className="text-xs text-[#6B7A75] font-medium">{l.sub}</div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Keamanan */}
+        <section id="keamanan" className="py-24 px-6 bg-[#F9FBFA] border-t border-[#E8EEEB]">
+          <div className="mx-auto max-w-5xl">
+            <div className="flex flex-col md:flex-row items-center gap-12">
+              <div className="flex-shrink-0">
+                <div className="w-36 h-36 rounded-3xl bg-[#EDF7F3] border-2 border-[#C0E4D4] flex items-center justify-center shadow-xl shadow-[#208C68]/10">
+                  <LockClosedIcon className="h-16 w-16 text-[#14503C]" />
+                </div>
+              </div>
+              <div>
+                <h2 className="text-3xl font-extrabold text-[#0D0F0E] mb-4">Keamanan bukan tambahan - ini intinya</h2>
+                <p className="text-[#4A5350] font-medium leading-relaxed mb-6">
+                  Dibangun di atas prinsip zero-knowledge storage - server tidak pernah mengetahui isi dokumen Anda.
+                  Kunci enkripsi bersifat unik per-siswa, digenerate oleh model NeuralKeyGen dan tidak tersimpan di mana pun.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {["AES-256-GCM untuk enkripsi file", "HKDF-SHA256 untuk derivasi kunci",
+                    "RSA-4096 Master Key per sekolah", "Argon2id untuk hash password",
+                    "HMAC-SHA256 untuk QR Code signing", "Audit log immutable, tidak bisa dihapus"].map((item) => (
+                    <div key={item} className="flex items-center gap-2 text-xs font-semibold text-[#2D5C4A]">
+                      <CheckCircleIcon className="h-4 w-4 text-[#208C68] flex-shrink-0" />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="py-20 px-6 bg-[#0D3B2A]">
+          <div className="mx-auto max-w-2xl text-center">
+            <Image src="/Logo DS.png" alt="DokumenSekolah" width={56} height={56} className="mx-auto mb-5 rounded-2xl opacity-90" />
+            <h2 className="text-3xl font-extrabold text-white mb-4">Siap digitalkan arsip sekolah Anda?</h2>
+            <p className="text-[#8FD3B8] font-medium mb-8">
+              Masuk ke panel admin untuk mulai mengunggah dokumen, atau akses portal siswa untuk mengambil berkas Anda.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+              <Link href="/admin/login"
+                className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white hover:bg-[#F0FAF6] text-[#14503C] font-bold text-sm transition-all shadow-md hover:-translate-y-[1px]">
+                Masuk sebagai Admin <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+              <Link href="/login"
+                className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl border border-[#3DB891]/40 text-[#8FD3B8] hover:border-[#3DB891] hover:text-white font-bold text-sm transition-all">
+                Portal Siswa / Alumni
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="border-t border-[#E8EEEB] py-10 bg-white">
+          <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <Link href="/" className="flex items-center gap-2.5">
+              <Image src="/Logo DS.png" alt="DokumenSekolah" width={28} height={28} className="rounded-md" />
+              <span className="font-extrabold text-[#0D3B2A] text-sm">DokumenSekolah</span>
+            </Link>
+            <p className="text-[#8FA39B] text-xs font-medium text-center">
+              2026 DokumenSekolah - Arsip Akademik Digital - Enkripsi NeuralKeyGen AES-256-GCM
+            </p>
+            <div className="flex gap-5 text-xs font-semibold text-[#6B7A75]">
+              <Link href="/login" className="hover:text-[#14503C] transition-colors">Portal Siswa</Link>
+              <Link href="/admin/login" className="hover:text-[#14503C] transition-colors">Admin</Link>
+            </div>
+          </div>
         </footer>
+
       </div>
     </>
   );

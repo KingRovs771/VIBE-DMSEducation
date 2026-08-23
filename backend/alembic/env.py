@@ -33,20 +33,10 @@ target_metadata = Base.metadata
 # ── Override URL dari environment variable ─────────────────────────────────────
 def get_url() -> str:
     """
-    Ambil DATABASE_URL dari environment.
-    Fallback ke alembic.ini jika tidak ada env var.
-    Priority:
-        1. DATABASE_URL env var (asyncpg driver untuk async engine)
-        2. DATABASE_URL_SYNC env var (psycopg2 driver untuk offline mode)
-        3. sqlalchemy.url dari alembic.ini
+    Ambil DATABASE_URL dari app settings.
     """
-    # Untuk async engine gunakan asyncpg
-    url = os.getenv("DATABASE_URL", "")
-    if url:
-        return url
-
-    # Fallback ke alembic.ini
-    return config.get_main_option("sqlalchemy.url", "")
+    from app.core.config import settings
+    return settings.DATABASE_URL
 
 
 def get_sync_url() -> str:

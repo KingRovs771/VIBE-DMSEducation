@@ -31,8 +31,8 @@ sekolah_table = sa.table(
     sa.column("alamat", sa.Text),
     sa.column("master_key_hash", sa.String),
     sa.column("is_active", sa.Boolean),
-    sa.column("created_at", sa.DateTime),
-    sa.column("updated_at", sa.DateTime),
+    sa.column("created_at", sa.DateTime(timezone=True)),
+    sa.column("updated_at", sa.DateTime(timezone=True)),
 )
 
 admin_table = sa.table(
@@ -42,14 +42,14 @@ admin_table = sa.table(
     sa.column("email", sa.String),
     sa.column("nama_lengkap", sa.String),
     sa.column("password_hash", sa.String),
-    sa.column("role", sa.String),
+    sa.column("role", sa.Enum("super_admin", "admin", "operator", "viewer", name="admin_role_enum")),
     sa.column("is_active", sa.Boolean),
     sa.column("is_verified", sa.Boolean),
     sa.column("failed_login_count", sa.Integer),
     sa.column("two_factor_enabled", sa.Boolean),
     sa.column("sekolah_id", sa.Integer),
-    sa.column("created_at", sa.DateTime),
-    sa.column("updated_at", sa.DateTime),
+    sa.column("created_at", sa.DateTime(timezone=True)),
+    sa.column("updated_at", sa.DateTime(timezone=True)),
 )
 
 
@@ -91,7 +91,7 @@ def upgrade() -> None:
                 "nama_lengkap": "Super Administrator",
                 "password_hash": (
                     # GANTI INI SEGERA SETELAH SETUP!
-                    "$2b$12$PLACEHOLDER_BCRYPT_HASH_GANTI_SEBELUM_PRODUCTION"
+                    "$2b$12$w2u66mpQ5dWkXV1joJLCb.vm452VEOM0F1tOjc6p7fA9zxwi5.ZPW"
                 ),
                 "role": "super_admin",
                 "is_active": True,

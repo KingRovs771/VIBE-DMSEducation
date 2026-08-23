@@ -43,3 +43,15 @@ Thumbs.db
 
 # ── SSL certs ────────────────────────────────────
 nginx/certs/
+
+# ── Data & Sensitive Files ───────────────────────
+backend/dms.db
+*.db
+*.sqlite3
+*.pdf
+*.enc
+backend/.env*
+frontend/.env*
+!frontend/.env.example
+!backend/.env.example
+

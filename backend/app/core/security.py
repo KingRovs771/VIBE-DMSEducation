@@ -1,6 +1,7 @@
 """
 Security utilities — JWT, password hashing, OAuth2
 """
+import bcrypt
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
@@ -8,19 +9,27 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from app.core.config import settings
+from app.core.crypto import hash_password as argon2_hash, verify_password as argon2_verify
 
 # ── Password hashing ────────────────────────────────────────────────────────
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str) -> str:
-    """Hash a plain-text password."""
-    return pwd_context.hash(password)
+    """Hash a plain-text password using Argon2id."""
+    return argon2_hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a plain-text password against a hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verify a plain-text password. Supports Argon2id and fallback to legacy bcrypt."""
+    if hashed_password.startswith("$argon2id$"):
+        return argon2_verify(plain_password, hashed_password)
+    try:
+        # Fallback to bcrypt directly to bypass Python 3.12 passlib compatibility issues
+        return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    except Exception:
+        return False
+
 
 
 # ── JWT tokens ──────────────────────────────────────────────────────────────

@@ -228,6 +228,7 @@ class AdminResponse(BaseModel):
 class AdminLoginRequest(BaseModel):
     username: str  # bisa username atau email
     password: str
+    code: Optional[str] = None
 
 
 class AdminTokenResponse(BaseModel):
@@ -252,6 +253,7 @@ class AuditLogResponse(BaseModel):
     resource_type: Optional[str] = None
     resource_id: Optional[int] = None
     ip_address: Optional[str] = None
+    user_agent: Optional[str] = None
     endpoint: Optional[str] = None
     http_method: Optional[str] = None
     status: str
@@ -298,3 +300,24 @@ class NotifikasiList(BaseModel):
 
 class NotifikasiMarkReadRequest(BaseModel):
     ids: list[int] = Field(..., min_length=1, description="List ID notifikasi yang akan ditandai dibaca")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAHUN AJARAN
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TahunAjaranBase(BaseModel):
+    tahun: str = Field(..., pattern=r"^\d{4}/\d{4}$", description="Format YYYY/YYYY")
+    is_default: bool = False
+
+
+class TahunAjaranCreate(TahunAjaranBase):
+    pass
+
+
+class TahunAjaranResponse(TahunAjaranBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}

@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import (
     DateTime, Enum, ForeignKey, Index, Integer,
-    String, Text, UniqueConstraint, CheckConstraint,
+    String, Text, UniqueConstraint, CheckConstraint, JSON,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -87,7 +87,7 @@ class Dokumen(Base):
         Index("ix_dokumen_uploaded_by", "uploaded_by"),
         # Check constraints
         CheckConstraint(
-            "tahun_ajaran ~ '^[0-9]{4}/[0-9]{4}$'",
+            "length(tahun_ajaran) = 9 AND substr(tahun_ajaran, 5, 1) = '/'",
             name="ck_dokumen_format_tahun_ajaran",
         ),
         {"comment": "Dokumen akademik siswa (terenkripsi di MinIO)"},
@@ -110,8 +110,8 @@ class Dokumen(Base):
     )
 
     # ── Klasifikasi Dokumen ───────────────────────────────────────────────────
-    jenis_dok: Mapped[JenisDokumen] = mapped_column(
-        Enum(JenisDokumen, name="jenis_dokumen_enum"),
+    jenis_dok: Mapped[str] = mapped_column(
+        String(100),
         nullable=False,
         comment="Jenis/kategori dokumen akademik",
     )
@@ -121,13 +121,13 @@ class Dokumen(Base):
         comment="Tahun ajaran format YYYY/YYYY (e.g. 2023/2024)",
     )
     semester: Mapped[SemesterEnum] = mapped_column(
-        Enum(SemesterEnum, name="semester_enum"),
+        Enum(SemesterEnum, name="semester_enum", values_callable=lambda obj: [e.value for e in obj]),
         default=SemesterEnum.FULL,
         nullable=False,
         comment="Semester: ganjil | genap | full",
     )
     status: Mapped[StatusDokumen] = mapped_column(
-        Enum(StatusDokumen, name="status_dokumen_enum"),
+        Enum(StatusDokumen, name="status_dokumen_enum", values_callable=lambda obj: [e.value for e in obj]),
         default=StatusDokumen.DRAFT,
         nullable=False,
         server_default="draft",
@@ -180,7 +180,7 @@ class Dokumen(Base):
 
     # ── Metadata Fleksibel ────────────────────────────────────────────────────
     metadata_json: Mapped[dict | None] = mapped_column(
-        JSONB,
+        JSON().with_variant(JSONB, "postgresql"),
         nullable=True,
         comment=(
             "Metadata tambahan dalam format JSONB. Contoh: "

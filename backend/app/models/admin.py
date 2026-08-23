@@ -22,6 +22,8 @@ class AdminRole(str, enum.Enum):
     ADMIN       = "admin"        # Admin per sekolah
     OPERATOR    = "operator"     # Upload dan review dokumen
     VIEWER      = "viewer"       # Hanya baca
+    TU_SEKOLAH  = "tu_sekolah"   # Peran TU Sekolah
+    DINAS_PENDIDIKAN = "dinas_pendidikan" # Peran Dinas Pendidikan
 
 
 class Admin(Base):
@@ -81,7 +83,7 @@ class Admin(Base):
         comment="Hash password (Argon2id/bcrypt, TIDAK boleh plaintext)",
     )
     role: Mapped[AdminRole] = mapped_column(
-        Enum(AdminRole, name="admin_role_enum"),
+        Enum(AdminRole, name="admin_role_enum", values_callable=lambda obj: [e.value for e in obj]),
         default=AdminRole.OPERATOR,
         nullable=False,
         comment="Level akses admin",
@@ -118,7 +120,7 @@ class Admin(Base):
         comment="Waktu terakhir password diubah",
     )
     two_factor_secret: Mapped[str | None] = mapped_column(
-        String(64),
+        String(255),
         nullable=True,
         comment="Secret key TOTP untuk 2FA (terenkripsi)",
     )
@@ -169,7 +171,12 @@ class Admin(Base):
     # ── Relationships ─────────────────────────────────────────────────────────
     sekolah: Mapped["Sekolah | None"] = relationship(  # noqa: F821
         "Sekolah",
+        foreign_keys=[sekolah_id],
         back_populates="admin",
+    )
+    sekolah_binaan: Mapped[list["Sekolah"]] = relationship(  # noqa: F821
+        "Sekolah",
+        secondary="dinas_sekolah_binaan",
     )
     uploaded_dokumen: Mapped[list["Dokumen"]] = relationship(  # noqa: F821
         "Dokumen",

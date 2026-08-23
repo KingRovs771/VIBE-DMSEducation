@@ -27,28 +27,28 @@ def upgrade() -> None:
     # ── 1. Partial index — dokumen pending review ──────────────────────────────
     # Hanya index record yang perlu ditinjau admin (jauh lebih kecil dari full index)
     op.execute("""
-        CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_dokumen_pending
+        CREATE INDEX IF NOT EXISTS ix_dokumen_pending
         ON dokumen (created_at, siswa_id)
         WHERE status = 'pending_review'
     """)
 
     # ── 2. Partial index — notifikasi belum dibaca ─────────────────────────────
     op.execute("""
-        CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_notif_unread_partial
+        CREATE INDEX IF NOT EXISTS ix_notif_unread_partial
         ON notifikasi (siswa_id, created_at)
         WHERE is_read = false
     """)
 
     # ── 3. Partial index — admin aktif ────────────────────────────────────────
     op.execute("""
-        CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_admin_active
+        CREATE INDEX IF NOT EXISTS ix_admin_active
         ON admin (sekolah_id, role)
         WHERE is_active = true
     """)
 
     # ── 4. Partial index — dokumen aktif (tidak expired/archived) ─────────────
     op.execute("""
-        CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_dokumen_active
+        CREATE INDEX IF NOT EXISTS ix_dokumen_active
         ON dokumen (siswa_id, jenis_dok, tahun_ajaran)
         WHERE status NOT IN ('archived', 'expired')
     """)
@@ -56,21 +56,21 @@ def upgrade() -> None:
     # ── 5. GIN index pada metadata_json (JSONB) ────────────────────────────────
     # Mendukung query seperti: WHERE metadata_json @> '{"predikat": "A"}'
     op.execute("""
-        CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_dokumen_metadata_gin
+        CREATE INDEX IF NOT EXISTS ix_dokumen_metadata_gin
         ON dokumen USING GIN (metadata_json)
         WHERE metadata_json IS NOT NULL
     """)
 
     # ── 6. GIN index pada detail (JSONB) di audit_log ─────────────────────────
     op.execute("""
-        CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_audit_detail_gin
+        CREATE INDEX IF NOT EXISTS ix_audit_detail_gin
         ON audit_log USING GIN (detail)
         WHERE detail IS NOT NULL
     """)
 
     # ── 7. GIN index pada payload (JSONB) di notifikasi ──────────────────────
     op.execute("""
-        CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_notif_payload_gin
+        CREATE INDEX IF NOT EXISTS ix_notif_payload_gin
         ON notifikasi USING GIN (payload)
         WHERE payload IS NOT NULL
     """)
@@ -154,4 +154,4 @@ def downgrade() -> None:
         "ix_audit_detail_gin",
         "ix_notif_payload_gin",
     ]:
-        op.execute(f"DROP INDEX CONCURRENTLY IF EXISTS {idx}")
+        op.execute(f"DROP INDEX IF EXISTS {idx}")

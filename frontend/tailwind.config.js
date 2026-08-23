@@ -9,6 +9,28 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        brand: {
+          50: '#F0FAF6',
+          100: '#E0F5EE',
+          200: '#B8EAD9',
+          300: '#7AD4B8',
+          400: '#3DB891',
+          500: '#208C68',
+          600: '#1A6B50',
+          700: '#14503C',
+          800: '#0F3D29',
+          900: '#0A2E1F',
+        },
+        neutral: {
+          50: '#F5F8F7',
+          100: '#EDF2F0',
+          200: '#D4DDD9',
+          400: '#8FA39B',
+          600: '#4A5350',
+          800: '#1F2421',
+          950: '#0D0F0E',
+        },
+        surface: '#FFFFFF',
         primary: {
           50: "#eef2ff",
           100: "#e0e7ff",
@@ -28,8 +50,13 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        display: ["Cal Sans", "Inter", "sans-serif"],
+        sans: ["DM Sans", "Inter", "system-ui", "sans-serif"],
+        display: ["Plus Jakarta Sans", "Inter", "sans-serif"],
+        body: ["DM Sans", "sans-serif"],
+        mono: ["DM Mono", "monospace"],
+      },
+      borderRadius: {
+        blob: '32px 60% 55% 32px / 32px 55% 60% 32px',
       },
       animation: {
         "fade-in": "fadeIn 0.3s ease-in-out",

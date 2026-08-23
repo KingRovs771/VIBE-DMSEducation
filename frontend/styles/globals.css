@@ -1,58 +1,157 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 @layer base {
-  * {
-    box-sizing: border-box;
+  :root {
+    /* ─── PASTEL STAT CARDS ─── */
+    --card-doc-bg:      #DFF2EC;
+    --card-doc-fg:      #0F4C39;
+    --card-doc-icon:    #1A7A5E;
+
+    --card-siswa-bg:    #DDE9F8;
+    --card-siswa-fg:    #1A3D6B;
+    --card-siswa-icon:  #2563EB;
+
+    --card-dl-bg:       #EDE0F8;
+    --card-dl-fg:       #4A1D7A;
+    --card-dl-icon:     #7C3AED;
+
+    --card-alert-bg:    #FDE8D8;
+    --card-alert-fg:    #7A2D0F;
+    --card-alert-icon:  #C2410C;
+
+    --card-upload-bg:   #FCEEDD;
+    --card-upload-fg:   #78350F;
+    --card-upload-icon: #D97706;
+
+    --card-key-bg:      #E0F0E0;
+    --card-key-fg:      #14532D;
+    --card-key-icon:    #15803D;
+
+    /* Semantics */
+    --color-success:    #15803D;
+    --color-success-bg: #DCFCE7;
+    --color-warning:    #D97706;
+    --color-warning-bg: #FEF3C7;
+    --color-error:      #DC2626;
+    --color-error-bg:   #FEE2E2;
+    --color-info:       #2563EB;
+    --color-info-bg:    #DBEAFE;
+
+    --color-bg: #F5F8F7;
+    --color-surface: #FFFFFF;
+    color-scheme: light;
   }
+
   html {
-    scroll-behavior: smooth;
+    @apply scroll-smooth;
   }
+
   body {
-    @apply bg-slate-950 text-white;
-    font-family: 'Inter', system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
+    @apply font-sans antialiased text-neutral-800 bg-[#F5F8F7];
   }
+
+  /* Scrollbar Customization */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-slate-900;
+    @apply bg-transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-slate-700;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-600;
+    @apply bg-neutral-200 rounded-full hover:bg-neutral-400;
   }
 }
 
 @layer components {
-  .btn-primary {
-    @apply flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed;
+  /* ── Card Component ── */
+  .dms-card {
+    @apply bg-white border border-neutral-200 rounded-[20px] p-6 shadow-sm transition-all duration-200 hover:translate-y-[-2px] hover:shadow-md;
   }
 
-  .btn-secondary {
-    @apply flex items-center justify-center gap-2 rounded-lg border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-300 transition hover:border-slate-600 hover:text-white active:scale-95;
+  /* ── Form Inputs ── */
+  .dms-input-dark {
+    @apply h-12 w-full bg-white/10 border border-white/10 rounded-xl px-4 text-white placeholder-white/30 focus:outline-none focus:border-brand-400 focus:bg-white/20 transition-all duration-150;
+    box-shadow: none;
   }
 
-  .card {
-    @apply rounded-xl border border-slate-800 bg-slate-900 p-6;
+  .dms-input-dark-focus {
+    box-shadow: 0 0 0 3px rgba(61, 184, 145, 0.30);
   }
 
-  .input {
-    @apply w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20;
+  .dms-input-error {
+    @apply border-red-500;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.25);
   }
 
-  .badge {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  /* Autofill override for dark inputs */
+  .dms-input-dark:-webkit-autofill,
+  .dms-input-dark:-webkit-autofill:hover, 
+  .dms-input-dark:-webkit-autofill:focus {
+    -webkit-text-fill-color: #FFFFFF !important;
+    -webkit-box-shadow: 0 0 0px 1000px #0A2E1F inset !important;
+    transition: background-color 5000s ease-in-out 0s;
   }
+}
 
-  .glass {
-    @apply border border-white/10 bg-white/5 backdrop-blur-sm;
+/* ── Animations ── */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(20px); }
+}
+
+@keyframes scaleIn {
+  from { transform: translateY(-50%) scale(0.92); opacity: 0; }
+  to   { transform: translateY(-50%) scale(1);    opacity: 1; }
+}
+
+@keyframes float {
+  from { transform: translateY(0px) rotate(-2deg); }
+  to   { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .6; transform: scale(0.85); }
+}
+
+@keyframes shimmer {
+  from { background-position: -400px 0; }
+  to   { background-position:  400px 0; }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite alternate;
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.5s infinite;
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #EDF2F0 25%,
+    #F5F8F7 50%,
+    #EDF2F0 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Reduced motion override */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

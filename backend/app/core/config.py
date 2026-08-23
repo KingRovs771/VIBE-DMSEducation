@@ -1,9 +1,11 @@
 """
 Application Configuration — menggunakan Pydantic Settings
 """
+import json
 from functools import lru_cache
-from typing import List
+from typing import List, Union
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,15 +23,30 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     DEBUG: bool = True
     SECRET_KEY: str = "change-me-in-production"
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
+    ALLOWED_ORIGINS: Union[str, List[str]] = ["http://localhost:3000"]
+
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str):
+            if v.startswith("[") and v.endswith("]"):
+                try:
+                    return json.loads(v)
+                except json.JSONDecodeError:
+                    pass
+            return [i.strip() for i in v.split(",") if i.strip()]
+        elif isinstance(v, list):
+            return v
+        raise ValueError(f"Invalid type for ALLOWED_ORIGINS: {type(v)}")
 
     # ── Database ───────────────────────────────────────────────────────
-    DATABASE_URL: str = "postgresql+asyncpg://dms_user:password@localhost:5432/dms_sekolah"
-    POSTGRES_HOST: str = "localhost"
+    POSTGRES_HOST: str = "postgres"
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "dms_sekolah"
     POSTGRES_USER: str = "dms_user"
-    POSTGRES_PASSWORD: str = "password"
+    POSTGRES_PASSWORD: str = "your-strong-db-password"
+    DATABASE_URL: str = "postgresql+asyncpg://dms_user:your-strong-db-password@postgres:5432/dms_sekolah"
+
 
     # ── Redis ──────────────────────────────────────────────────────────
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -62,10 +79,18 @@ class Settings(BaseSettings):
     ML_DEVICE: str = "cpu"
     ML_KEY_LENGTH: int = 32
     ML_BATCH_SIZE: int = 16
+    ENABLE_ANOMALY_DETECTION: bool = True
 
     # ── Logging ────────────────────────────────────────────────────────
     LOG_LEVEL: str = "INFO"
     LOG_FORMAT: str = "json"
+
+    # ── SINDAS Integration ─────────────────────────────────────────────────
+    SINDAS_API_BASE_URL: str = ""                   # Base URL REST API SINDAS
+    SINDAS_API_KEY: str = ""                        # API Key untuk pull data dari SINDAS
+    SINDAS_WEBHOOK_SECRET: str = "change-me"        # Secret untuk verifikasi signature webhook
+    SINDAS_DEFAULT_SEKOLAH_ID: int = 1              # Fallback sekolah_id jika tidak ada di payload
+    SINDAS_ENABLED: bool = True                     # Feature flag — matikan jika SINDAS tidak tersedia
 
 
 @lru_cache()
